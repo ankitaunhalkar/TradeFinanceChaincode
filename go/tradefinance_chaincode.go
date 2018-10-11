@@ -210,7 +210,7 @@ func (tf *TradeFinanceChaincode) importerBankAcceptance(stub shim.ChaincodeStubI
 	var contractDetails Contract
 	json.Unmarshal(contract, &contractDetails)
 
-	if contractDetails.ContractCustomStatus == false && contractDetails.ContractInsuranceStatus == false {
+	if contractDetails.ContractCustomStatus == false || contractDetails.ContractInsuranceStatus == false {
 		return shim.Error("Customs or Insurance are not accepted")
 	}
 
@@ -249,8 +249,8 @@ func (tf *TradeFinanceChaincode) insuranceAcceptance(stub shim.ChaincodeStubInte
 	json.Unmarshal(contract, &contractDetails)
 
 	if contractDetails.LetterOfCredit == "" || contractDetails.BillOfLading == "" {
-		// return shim.Error("Documents are not attacted")
 		contractDetails.ContractInsuranceStatus = false
+		// return shim.Error("Documents are not attacted")
 	} else {
 		contractDetails.ContractInsuranceStatus = true
 	}
@@ -269,7 +269,7 @@ func (tf *TradeFinanceChaincode) customAcceptance(stub shim.ChaincodeStubInterfa
 	var contractDetails Contract
 	json.Unmarshal(contract, &contractDetails)
 
-	if contractDetails.ContractEntryPort == "" || contractDetails.ContractLoadingPort == "" {
+	if contractDetails.ContractEntryPort == "" && contractDetails.ContractLoadingPort == "" {
 		// return shim.Error("Ports are not assigned")
 		contractDetails.ContractCustomStatus = false
 	} else {
@@ -294,8 +294,9 @@ func (tf *TradeFinanceChaincode) transferamount(stub shim.ChaincodeStubInterface
 	json.Unmarshal(contract, &contractDetails)
 
 	fmt.Println(contractDetails)
-	if contractDetails.ContractCustomStatus == false && contractDetails.ContractInsuranceStatus == false {
-		return shim.Error("Importer bank has not approved transaction")
+	if contractDetails.ContractImporterBankStatus == false {
+		// fmt.Println("Status false")
+		return shim.Error("Importer bank has not approved transaction! No balance avaliable")
 	}
 
 	//Deduct from importer account
